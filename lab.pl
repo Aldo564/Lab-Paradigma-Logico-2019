@@ -106,8 +106,20 @@ getScene(SCENE,ELEM):- % SCENE
     nth0(5,SCENE,ELEM).
 
 getFila(MATRIZ, F, ELEM):-
-    %getSpace(SPACE, MATRIZ),
     nth0(F, MATRIZ, ELEM).
+
+existe(_, [], _, _):-fail.
+
+existe(_, [], POSx, POSx).
+
+existe(ELEM, [X|_], POSx, _):-
+    ELEM = X,
+    existe(_, [], POSx, POSx).
+
+existe(ELEM,[X|Xs], POSx, OUT):-
+    ELEM \= X,
+    POSx1 is POSx + 1,
+    existe(ELEM, Xs, POSx1, OUT).
 
 %Ejemplos:
 % Los ejemplos aqui puestos no estan sujetos a las restricciones del
@@ -327,3 +339,63 @@ sceneToString(SCENE,SCENESTR):-
 %sceneToString([[$,#,%],[&,/,*],[-,+,!]], FINAL).
 
 %#############################################
+
+
+%#############################################
+% Funcion MoveMember
+
+
+
+verificarEspacio(SCENEIN, X, Y, MOVEDIR):-
+    MOVEDIR = 1, %esto significa movimiento a la izquierda
+    getAncho(SCENEIN, ANCHO),
+    X > ANCHO,
+    X1 is X - 1,
+    getFila(SCENEIN, Y, FILA),
+    getFila(FILA, X1, ELEM),
+    ELEM = "0".
+
+
+verificarEspacio(SCENEIN, X, Y, MOVEDIR):-
+    MOVEDIR = 0, %esto significa movimiento a la derecha
+    getAncho(SCENEIN, ANCHO),
+    X < ANCHO,
+    X1 is X + 1,
+    getFila(SCENEIN, Y, FILA),
+    getFila(FILA, X1, ELEM),
+    ELEM = "0".
+
+
+buscarMember(SCENEIN, MEMBER, X, Y):-
+    getAncho(SCENEIN, ANCHO),
+    Y is ANCHO - 3,
+    getFila(SCENEIN, Y, FILA),
+    existe(MEMBER, FILA, 0, X).
+
+replace([_|Xs], 0, SHIP, [SHIP|Xs]).
+
+replace([X|XS], I, SHIP, [X|YS]):-
+    I > -1,
+    NI is I-1,
+    replace(XS, NI, SHIP, YS), !.
+
+replace(L, _, _, L).
+
+
+mover(SCENEIN, MEMBER, OLDX, NEWX, Y, SCENEOUT):-
+    getFila(SCENEIN, Y, FILA),
+    getScene(SCENEIN, SCENE),
+    replace(FILA, OLDX, "0", ELEM),
+    replace(ELEM, NEWX, MEMBER, NEWFILA),
+    replace(SCENE, Y, NEWFILA, NEWSCENE),
+    replace(SCENEIN, 5, NEWSCENE, SCENEOUT).
+
+
+moveMember(SCENEIN, MEMBER, MOVEDIR, _, SCENEOUT):- %Seed
+    buscarMember(SCENEIN, MEMBER, X, Y),
+    verificarEspacio(SCENEIN, X, Y, MOVEDIR),
+    X1 is X + 1,
+    mover(SCENEIN, MEMBER, X, X1, Y, SCENEOUT).
+
+
+%moveMember([5,10,2,0,0,[["0","0","0","0","0","0","0","0","0","0"],["0","0","0","0","0","0","0","0","0","0"],["1","0","0","0","0","0","0","0","2","2"],["#","#","#","#","#","#","#","#","#","#"],["#","#","#","#","#","#","#","#","#","#"]]], "1", 0, 0, OUT).
