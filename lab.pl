@@ -88,10 +88,10 @@ scene([20,20,8,0,0,
 %Funciones Getters
 
 getAlto(SCENE,ELEM):- % N
-    nth0(0,SCENE,ELEM).
+    nth0(1,SCENE,ELEM).
 
 getAncho(SCENE, ELEM):- % M
-    nth0(1,SCENE,ELEM).
+    nth0(0,SCENE,ELEM).
 
 getEnemigos(SCENE,ELEM):- % E
     nth0(2,SCENE,ELEM).
@@ -120,6 +120,16 @@ existe(ELEM,[X|Xs], POSx, OUT):-
     ELEM \= X,
     POSx1 is POSx + 1,
     existe(ELEM, Xs, POSx1, OUT).
+
+
+pos(X,[X|_],0).
+
+pos(_,[],_):-
+    !,fail.
+
+pos(X,[_|R],Pos):-
+    pos(X,R,Pos1),
+    Pos is Pos1+1.
 
 %Ejemplos:
 % Los ejemplos aqui puestos no estan sujetos a las restricciones del
@@ -225,12 +235,12 @@ isScene(N, M, E, ENEMIGOS, MATRIZ):-
 contarEnemigos([],CONT,CONT).
 
 contarEnemigos([X|Xs], CONT, OUT):-
-    X \= "2",
+    X \= "9",
     contarEnemigos(Xs, CONT,OUT).
 
 
 contarEnemigos([X|Xs], CONT,OUT):-
-    X == "2",
+    X == "9",
     CONT1 is CONT + 1,
     contarEnemigos(Xs, CONT1,OUT).
 
@@ -255,9 +265,9 @@ checkScene([N,M,E,_, _, _]):-
     contarEnemigos(MATRIZ, E, 0).
 
 %Ejemplos:
-%isScene([5, 10, 4, _]).
-%isScene([10, 12, 4, _]).
-%isScene([20, 20, 8, _]).
+%checkScene([5, 10, 4, _, _, _]).
+%checkScene([10, 12, 4, _, _, _]).
+%checkScene([20, 20, 8, _, _, _]).
 
 %#############################################
 
@@ -328,10 +338,9 @@ columnaToString(MATRIZ,FILA, BOARDSTR, FINAL):-
 matrizToString([M|Ms], BOARDSTR, FINAL):-
     columnaToString(Ms, M, BOARDSTR, FINAL).
 
-sceneToString(SCENE,SCENESTR):-
-    matrizToString(SCENE, "" ,SCENESTR),
-    write(SCENESTR).
-
+sceneToString(SCENEIN,SCENESTR):-
+    getScene(SCENEIN, SCENE),
+    matrizToString(SCENE, "" ,SCENESTR).
 
 %Ejemplos:
 %sceneToString([["#","O"],["#","O"]], FINAL).
@@ -348,10 +357,10 @@ sceneToString(SCENE,SCENESTR):-
 
 verificarEspacio(SCENEIN, X, Y, MOVEDIR):-
     MOVEDIR = 1, %esto significa movimiento a la izquierda
-    getAncho(SCENEIN, ANCHO),
-    X > ANCHO,
+    X > 0,
     X1 is X - 1,
-    getFila(SCENEIN, Y, FILA),
+    getScene(SCENEIN, SCENE),
+    getFila(SCENE, Y, FILA),
     getFila(FILA, X1, ELEM),
     ELEM = "0".
 
@@ -361,7 +370,8 @@ verificarEspacio(SCENEIN, X, Y, MOVEDIR):-
     getAncho(SCENEIN, ANCHO),
     X < ANCHO,
     X1 is X + 1,
-    getFila(SCENEIN, Y, FILA),
+    getScene(SCENEIN, SCENE),
+    getFila(SCENE, Y, FILA),
     getFila(FILA, X1, ELEM),
     ELEM = "0".
 
@@ -369,8 +379,9 @@ verificarEspacio(SCENEIN, X, Y, MOVEDIR):-
 buscarMember(SCENEIN, MEMBER, X, Y):-
     getAncho(SCENEIN, ANCHO),
     Y is ANCHO - 3,
-    getFila(SCENEIN, Y, FILA),
-    existe(MEMBER, FILA, 0, X).
+    getScene(SCENEIN, SCENE),
+    getFila(SCENE, Y, FILA),
+    pos(MEMBER,FILA, X).
 
 replace([_|Xs], 0, SHIP, [SHIP|Xs]).
 
@@ -383,8 +394,8 @@ replace(L, _, _, L).
 
 
 mover(SCENEIN, MEMBER, OLDX, NEWX, Y, SCENEOUT):-
-    getFila(SCENEIN, Y, FILA),
     getScene(SCENEIN, SCENE),
+    getFila(SCENE, Y, FILA),
     replace(FILA, OLDX, "0", ELEM),
     replace(ELEM, NEWX, MEMBER, NEWFILA),
     replace(SCENE, Y, NEWFILA, NEWSCENE),
@@ -392,10 +403,32 @@ mover(SCENEIN, MEMBER, OLDX, NEWX, Y, SCENEOUT):-
 
 
 moveMember(SCENEIN, MEMBER, MOVEDIR, _, SCENEOUT):- %Seed
+    MOVEDIR = 0, %DERECHA
     buscarMember(SCENEIN, MEMBER, X, Y),
     verificarEspacio(SCENEIN, X, Y, MOVEDIR),
     X1 is X + 1,
-    mover(SCENEIN, MEMBER, X, X1, Y, SCENEOUT).
+    mover(SCENEIN, MEMBER, X, X1, Y, SCENEOUT),
+    sceneToString(SCENEOUT,SCENESTR),
+    write(SCENESTR).
+
+moveMember(SCENEIN, MEMBER, MOVEDIR, _, SCENEOUT):- %Seed
+    MOVEDIR = 1, %IZQUIERDA
+    buscarMember(SCENEIN, MEMBER, X, Y),
+    verificarEspacio(SCENEIN, X, Y, MOVEDIR),
+    X1 is X - 1,
+    mover(SCENEIN, MEMBER, X, X1, Y, SCENEOUT),
+    sceneToString(SCENEOUT,SCENESTR),
+    write(SCENESTR).
 
 
+
+%ejemplo movimiento a la derecha
 %moveMember([5,10,2,0,0,[["0","0","0","0","0","0","0","0","0","0"],["0","0","0","0","0","0","0","0","0","0"],["1","0","0","0","0","0","0","0","2","2"],["#","#","#","#","#","#","#","#","#","#"],["#","#","#","#","#","#","#","#","#","#"]]], "1", 0, 0, OUT).
+
+%ejemplo movimiento a la izquierda
+%moveMember([5,10,2,0,0,[["0","0","0","0","0","0","0","0","0","0"],["0","0","0","0","0","0","0","0","0","0"],["0","1","0","0","0","0","0","0","2","2"],["#","#","#","#","#","#","#","#","#","#"],["#","#","#","#","#","#","#","#","#","#"]]], "1", 1, 0, OUT).
+
+%movimiento a la derecha de member 3
+%moveMember([10,12,4,0,0,[["0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","0","0","0","0","0","0","0","0","0","0"],["1","2","3","0","0","0","0","0","9","9","9","9"],["#","#","#","#","#","#","#","#","#","#","#","#"],["#","#","#","#","#","#","#","#","#","#","#","#"]]],"3", 0, 0, OUT).
+
+
