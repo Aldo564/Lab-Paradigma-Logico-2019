@@ -383,12 +383,13 @@ buscarMember(SCENEIN, MEMBER, X, Y):-
     getFila(SCENE, Y, FILA),
     pos(MEMBER,FILA, X).
 
-replace([_|Xs], 0, SHIP, [SHIP|Xs]).
+%Funcion que reemplaza la posicion I con el caracter MEMBER
+replace([_|Xs], 0, MEMBER, [MEMBER|Xs]).
 
-replace([X|XS], I, SHIP, [X|YS]):-
+replace([X|XS], I, MEMBER, [X|YS]):-
     I > -1,
     NI is I-1,
-    replace(XS, NI, SHIP, YS), !.
+    replace(XS, NI, MEMBER, YS), !.
 
 replace(L, _, _, L).
 
