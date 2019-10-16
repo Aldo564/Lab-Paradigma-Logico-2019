@@ -436,7 +436,7 @@ moveMember(SCENEIN, MEMBER, MOVEDIR, _, SCENEOUT):- %Seed
     write(STR),
     nl,
     nl,
-    MOVEDIR = 0, %DERECHA
+    MOVEDIR = 1, %DERECHA
     buscarMember(SCENEIN, MEMBER, X, Y),
     verificarEspacio(SCENEIN, X, Y, MOVEDIR),
     X1 is X + 1,
@@ -453,7 +453,7 @@ moveMember(SCENEIN, MEMBER, MOVEDIR, _, SCENEOUT):- %Seed
     write(STR),
     nl,
     nl,
-    MOVEDIR = 1, %IZQUIERDA
+    MOVEDIR = -1, %IZQUIERDA
     buscarMember(SCENEIN, MEMBER, X, Y),
     verificarEspacio(SCENEIN, X, Y, MOVEDIR),
     X1 is X - 1,
@@ -463,13 +463,29 @@ moveMember(SCENEIN, MEMBER, MOVEDIR, _, SCENEOUT):- %Seed
     write(SCENESTR),
     nl.
 
+moveMember(SCENEIN, _, MOVEDIR, _, SCENEOUT):- %Seed
+    nl,
+    write("Escena antes del movimiento:\n"),
+    sceneToString(SCENEIN, STR),
+    write(STR),
+    nl,
+    nl,
+    MOVEDIR = 0, %NO HAY MOVIMIENTO
+    write("Escena despues del movimiento:\n"),
+    sceneToString(SCENEOUT,SCENESTR),
+    write(SCENESTR),
+    nl.
+
+
 
 
 %ejemplo movimiento a la derecha
 % moveMember([5,10,2,0,0, "PLAYING",[["0","0","0","0","0","0","0","0","0","0"],["0","0","0","0","0","0","0","0","0","0"],["1","0","0","0","0","0","0","0","9","9"],["#","#","#","#","#","#","#","#","#","#"],["#","#","#","#","#","#","#","#","#","#"]]],"1", 0, 0, OUT).
 
 %ejemplo movimiento a la izquierda
-%moveMember([5,10,2,0,0, "PLAYING",[["0","0","0","0","0","0","0","0","0","0"],["0","0","0","0","0","0","0","0","0","0"],["0","1","0","0","0","0","0","0","2","2"],["#","#","#","#","#","#","#","#","#","#"],["#","#","#","#","#","#","#","#","#","#"]]], "1", 1, 0, OUT).
+% moveMember([5,10,2,0,0,
+% "PLAYING",[["0","0","0","0","0","0","0","0","0","0"],["0","0","0","0","0","0","0","0","0","0"],["0","1","0","0","0","0","0","0","2","2"],["#","#","#","#","#","#","#","#","#","#"],["#","#","#","#","#","#","#","#","#","#"]]],
+% "1", -1, 0, OUT).
 
 %movimiento a la derecha de member 3
 %moveMember([10,12,4,0,0, "PLAYING",[["0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","0","0","0","0","0","0","0","0","0","0"],["0","0","0","0","0","0","0","0","0","0","0","0"],["1","2","3","0","0","0","0","0","9","9","9","9"],["#","#","#","#","#","#","#","#","#","#","#","#"],["#","#","#","#","#","#","#","#","#","#","#","#"]]],"3", 0, 0, OUT).
